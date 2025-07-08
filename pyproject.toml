@@ -1,0 +1,57 @@
+[project]
+name = "heatwave-rag"
+version = "0.1.0"
+description = "A comprehensive RAG library for Oracle HeatWave MySQL with LangChain integration"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "langchain>=0.2.17",
+    "langchain-community>=0.2.19",
+    "numpy>=1.24.4",
+    "pydantic>=2.10.6",
+    "pymysql>=1.1.1",
+    "python-dotenv>=1.0.1",
+    "sqlalchemy>=2.0.41",
+]
+authors = [
+    { name = "HeatWave RAG Contributors" }
+]
+license = { text = "MIT" }
+keywords = ["heatwave", "mysql", "rag", "vector", "langchain", "embedding"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Database",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.5",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=5.0.0",
+    "ruff>=0.12.2",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "B", "UP", "C90", "PL"]
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
