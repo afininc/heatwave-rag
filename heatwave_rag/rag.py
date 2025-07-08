@@ -6,7 +6,6 @@ from typing import Any, Optional
 from langchain.chains import LLMChain
 from langchain.chat_models.base import BaseChatModel
 from langchain.prompts import ChatPromptTemplate
-from langchain.schema import Document
 
 from heatwave_rag.schemas import VectorSearchQuery, VectorSearchResult
 from heatwave_rag.vector_search import VectorSearchEngine
@@ -259,7 +258,7 @@ Answer:"""
 
         # Create prompt
         prompt = ChatPromptTemplate.from_template(template)
-        
+
         # Format the prompt
         formatted_prompt = prompt.format(question=query, context=context)
 
