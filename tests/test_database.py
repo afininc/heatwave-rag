@@ -1,6 +1,5 @@
 """Tests for database functionality."""
 
-
 from heatwave_rag.database import DatabaseManager
 from heatwave_rag.models import VectorDocument
 from heatwave_rag.schemas import ConnectionConfig, TableInitConfig
@@ -16,7 +15,9 @@ class TestDatabaseManager:
         assert manager.session_factory is not None
         manager.close()
 
-    def test_table_initialization(self, db_manager: DatabaseManager, test_table_name: str, clean_database):
+    def test_table_initialization(
+        self, db_manager: DatabaseManager, test_table_name: str, clean_database
+    ):
         """Test table initialization."""
         table_config = TableInitConfig(
             table_name=test_table_name,
@@ -52,7 +53,9 @@ class TestDatabaseManager:
             assert session is not None
             assert session.is_active
 
-    def test_drop_tables(self, db_manager: DatabaseManager, test_table_name: str, clean_database):
+    def test_drop_tables(
+        self, db_manager: DatabaseManager, test_table_name: str, clean_database
+    ):
         """Test dropping tables."""
         table_config = TableInitConfig(
             table_name=test_table_name,

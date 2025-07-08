@@ -1,6 +1,5 @@
 """Tests for embedding functionality."""
 
-
 import pytest
 
 from heatwave_rag.embeddings import EmbeddingManager
@@ -81,7 +80,9 @@ class TestEmbeddingManager:
         with pytest.raises(ValueError, match="No embeddings instance configured"):
             manager.embed_text("Test text")
 
-    def test_store_documents(self, embedding_manager, sample_metadata, clean_database, test_table_name):
+    def test_store_documents(
+        self, embedding_manager, sample_metadata, clean_database, test_table_name
+    ):
         """Test storing documents with embeddings."""
         # Create test chunks
         chunks = [
@@ -120,13 +121,17 @@ class TestEmbeddingManager:
         finally:
             VectorDocument.__tablename__ = original_table_name
 
-    def test_document_deduplication(self, embedding_manager, sample_metadata, clean_database, test_table_name):
+    def test_document_deduplication(
+        self, embedding_manager, sample_metadata, clean_database, test_table_name
+    ):
         """Test that duplicate documents are skipped."""
         # Create duplicate chunks
         chunks = [
             DocumentChunk(
                 text="Duplicate text",
-                metadata=DocumentMetadata(**{**sample_metadata, "source_id": "dup_001"}),
+                metadata=DocumentMetadata(
+                    **{**sample_metadata, "source_id": "dup_001"}
+                ),
                 chunk_index=0,
             )
             for _ in range(3)
@@ -153,7 +158,9 @@ class TestEmbeddingManager:
         finally:
             VectorDocument.__tablename__ = original_table_name
 
-    def test_get_document_count(self, embedding_manager, clean_database, test_table_name):
+    def test_get_document_count(
+        self, embedding_manager, clean_database, test_table_name
+    ):
         """Test getting document count."""
         from heatwave_rag.models import VectorDocument
         from heatwave_rag.schemas import TableInitConfig

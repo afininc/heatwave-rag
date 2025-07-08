@@ -87,13 +87,16 @@ class TestDocumentProcessor:
         assert chunks[0].text == ""
         assert chunks[0].chunk_index == 0
 
-    @pytest.mark.parametrize("splitter_type", [
-        "recursive",
-        "character",
-        "token",
-        "markdown",
-        "python",
-    ])
+    @pytest.mark.parametrize(
+        "splitter_type",
+        [
+            "recursive",
+            "character",
+            "token",
+            "markdown",
+            "python",
+        ],
+    )
     def test_different_splitters(self, splitter_type: str, sample_text: str):
         """Test different splitter types."""
         processor = DocumentProcessor()

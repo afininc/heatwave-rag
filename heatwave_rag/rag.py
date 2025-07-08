@@ -203,7 +203,9 @@ Answer:"""
         if return_sources:
             response["sources"] = [
                 {
-                    "text": result.text[:200] + "..." if len(result.text) > 200 else result.text,
+                    "text": result.text[:200] + "..."
+                    if len(result.text) > 200
+                    else result.text,
                     "score": result.score,
                     "metadata": result.metadata,
                 }

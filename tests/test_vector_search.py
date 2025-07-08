@@ -166,7 +166,9 @@ class TestVectorSearch:
         assert search_engine._cosine_similarity(vec1, vec3) == pytest.approx(0.0)
 
         # 45-degree angle should have similarity ~0.707
-        assert search_engine._cosine_similarity(vec1, vec4) == pytest.approx(0.707, rel=1e-3)
+        assert search_engine._cosine_similarity(vec1, vec4) == pytest.approx(
+            0.707, rel=1e-3
+        )
 
     def test_search_by_similarity(self, search_engine, sample_documents):
         """Test finding similar documents."""

@@ -233,9 +233,7 @@ class HeatWaveRAG:
         # Store chunks
         doc_ids = self.embedding_manager.store_documents(chunks, batch_size)
 
-        logger.info(
-            f"Added {len(doc_ids)} documents from directory: {directory_path}"
-        )
+        logger.info(f"Added {len(doc_ids)} documents from directory: {directory_path}")
         return doc_ids
 
     def search(
