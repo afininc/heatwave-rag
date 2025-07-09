@@ -3,7 +3,6 @@
 import logging
 from typing import Any, Optional
 
-from langchain.chains import LLMChain
 from langchain.chat_models.base import BaseChatModel
 from langchain.prompts import ChatPromptTemplate
 
@@ -141,10 +140,18 @@ Answer:"""
 
         # Create prompt
         prompt = ChatPromptTemplate.from_template(template)
-        chain = LLMChain(llm=self.llm, prompt=prompt)
+        
+        # Use the new RunnableSequence approach
+        chain = prompt | self.llm
 
         # Generate response
-        response = chain.run(question=query, context=context, **llm_kwargs)
+        response = chain.invoke({"question": query, "context": context}, **llm_kwargs)
+        
+        # Extract content from the response
+        if hasattr(response, 'content'):
+            response = response.content
+        else:
+            response = str(response)
         logger.info(f"Generated response for query: {query}")
 
         return response

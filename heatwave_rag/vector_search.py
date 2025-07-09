@@ -144,12 +144,13 @@ class VectorSearchEngine:
         # Convert query vector to string format for MySQL
         vector_str = f"[{','.join(map(str, query_vector.tolist()))}]"
 
-        # Build SQL query with vector similarity
-        # This assumes a VECTOR_SIMILARITY function exists in HeatWave
+        # Build SQL query with vector similarity using MySQL 9.0 functions
+        # Use STRING_TO_VECTOR to convert JSON strings to VECTOR type
+        # Use DISTANCE function with COSINE metric
         sql = text("""
             SELECT
                 id,
-                VECTOR_SIMILARITY(vector, :query_vector) as similarity
+                (1 - DISTANCE(STRING_TO_VECTOR(vector), STRING_TO_VECTOR(:query_vector), 'COSINE')) as similarity
             FROM vector_documents
             WHERE is_deleted = 0
                 AND (:project IS NULL OR project = :project)
