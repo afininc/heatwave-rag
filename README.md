@@ -4,19 +4,38 @@ A comprehensive RAG (Retrieval-Augmented Generation) library for Oracle HeatWave
 
 ## Features
 
-- =€ **HeatWave Vector Store**: Optimized for Oracle HeatWave MySQL's vector capabilities
+- =ï¿½ **HeatWave Vector Store**: Optimized for Oracle HeatWave MySQL's vector capabilities
 - = **LangChain Integration**: Seamless integration with LangChain ecosystem
-- =Ä **Multi-Format Support**: Process PDF, DOCX, Markdown, JSON, CSV, and text files
+- =ï¿½ **Multi-Format Support**: Process PDF, DOCX, Markdown, JSON, CSV, and text files
 - = **Hybrid Search**: Combine vector similarity and keyword search
-- <â **Multi-Tenancy**: Built-in support for projects and namespaces
+- <ï¿½ **Multi-Tenancy**: Built-in support for projects and namespaces
 - = **Flexible Embeddings**: Support for OpenAI, HuggingFace, Cohere, and more
-- <¯ **Production Ready**: Connection pooling, batch processing, and error handling
+- <ï¿½ **Production Ready**: Connection pooling, batch processing, and error handling
 
 ## Installation
 
+### Install from GitHub
+
+Since the package is not yet available on PyPI, install directly from GitHub:
+
 ```bash
-pip install heatwave-rag
+# Using pip
+pip install git+https://github.com/afininc/heatwave-rag.git
+
+# Using uv (recommended)
+uv pip install git+https://github.com/afininc/heatwave-rag.git
+
+# For development
+git clone https://github.com/afininc/heatwave-rag.git
+cd heatwave-rag
+uv pip install -e .
 ```
+
+### Requirements
+
+- Python 3.9+
+- MySQL 8.0+ (MySQL 9.0+ recommended for native vector support)
+- LangChain and your preferred embedding/LLM providers
 
 ## Quick Start
 
@@ -183,7 +202,7 @@ The library creates a `vector_documents` table with the following structure:
 | Column | Type | Description |
 |--------|------|-------------|
 | id | INT | Primary key |
-| vector | VECTOR | Embedding vector |
+| vector | LONGTEXT | Embedding vector (stored as JSON) |
 | text | TEXT | Document content |
 | metadata | JSON | Additional metadata |
 | source | VARCHAR(500) | Source file/URL |
@@ -229,9 +248,45 @@ ruff check . --fix
 ruff format .
 ```
 
+## Utility Scripts
+
+The `scripts/` directory contains useful utilities:
+
+### check_mysql_version.py
+Check MySQL version and vector function support:
+```bash
+python scripts/check_mysql_version.py
+```
+
+### debug_vectors.py
+Debug vector storage and inspect table structure:
+```bash
+python scripts/debug_vectors.py
+```
+
+### recreate_table.py
+Recreate the vector_documents table:
+```bash
+python scripts/recreate_table.py
+```
+
+### test_pdf_demo.py
+Test the library with PDF files:
+```bash
+python scripts/test_pdf_demo.py
+```
+
+## MySQL Vector Support
+
+HeatWave RAG works with:
+- **MySQL 8.0+**: Uses LONGTEXT column with Python-based vector search
+- **MySQL 9.0+**: Can leverage native VECTOR type and DISTANCE() function when available
+
+The library automatically detects available features and uses the most efficient approach.
+
 ## License
 
-MIT License - see LICENSE file for details.
+Apache License 2.0 - see LICENSE file for details.
 
 ## Contributing
 
