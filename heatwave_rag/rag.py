@@ -104,12 +104,12 @@ Answer:"""
         for i, result in enumerate(results, 1):
             context_part = f"[{i}] {result.text}"
 
-            if include_metadata and result.metadata:
+            if include_metadata and result.meta:
                 # Add relevant metadata
-                if result.metadata.get("source"):
-                    context_part += f"\n(Source: {result.metadata['source']})"
-                if result.metadata.get("document_title"):
-                    context_part += f"\n(Title: {result.metadata['document_title']})"
+                if result.meta.get("source"):
+                    context_part += f"\n(Source: {result.meta['source']})"
+                if result.meta.get("document_title"):
+                    context_part += f"\n(Title: {result.meta['document_title']})"
 
             context_parts.append(context_part)
 
@@ -207,7 +207,7 @@ Answer:"""
                     if len(result.text) > 200
                     else result.text,
                     "score": result.score,
-                    "metadata": result.metadata,
+                    "metadata": result.meta,
                 }
                 for result in results
             ]

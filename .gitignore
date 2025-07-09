@@ -196,3 +196,5 @@ pyrightconfig.json
 
 # uv
 uv.lock
+
+demos/

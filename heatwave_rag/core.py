@@ -14,7 +14,6 @@ from heatwave_rag.rag import RAGEngine
 from heatwave_rag.schemas import (
     ConnectionConfig,
     DocumentChunk,
-    DocumentMetadata,
     TableInitConfig,
     VectorSearchQuery,
     VectorSearchResult,
@@ -120,7 +119,7 @@ class HeatWaveRAG:
     def add_documents(
         self,
         documents: Union[str, Path, list[str], list[Path], list[DocumentChunk]],
-        metadata: Optional[DocumentMetadata] = None,
+        metadata: Optional[dict[str, Any]] = None,
         batch_size: int = 100,
         skip_existing: bool = True,
         chunk_size: int = 1000,
@@ -183,7 +182,7 @@ class HeatWaveRAG:
         glob_pattern: str = "**/*",
         recursive: bool = True,
         exclude: Optional[list[str]] = None,
-        metadata: Optional[DocumentMetadata] = None,
+        metadata: Optional[dict[str, Any]] = None,
         batch_size: int = 100,
         chunk_size: int = 1000,
         chunk_overlap: int = 200,
@@ -215,16 +214,14 @@ class HeatWaveRAG:
         chunks = []
         for doc in documents:
             # Merge metadata
-            doc_metadata = DocumentMetadata(**doc.metadata)
+            merged_metadata = doc.metadata.copy()
             if metadata:
-                for key, value in metadata.model_dump(exclude_none=True).items():
-                    if not getattr(doc_metadata, key):
-                        setattr(doc_metadata, key, value)
+                merged_metadata.update(metadata)
 
             # Split into chunks
             doc_chunks = self.document_processor.process_text(
                 doc.page_content,
-                doc_metadata,
+                merged_metadata,
                 chunk_size=chunk_size,
                 chunk_overlap=chunk_overlap,
             )

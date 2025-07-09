@@ -25,7 +25,7 @@ class DocumentChunk(BaseModel):
     """A chunk of document with text and metadata."""
 
     text: str
-    metadata: DocumentMetadata = Field(default_factory=DocumentMetadata)
+    meta: dict[str, Any] = Field(default_factory=dict)
     chunk_index: int = 0
 
 
@@ -46,7 +46,7 @@ class VectorSearchResult(BaseModel):
     id: int
     text: str
     score: float
-    metadata: Optional[dict[str, Any]] = None
+    meta: Optional[dict[str, Any]] = None
     source: Optional[str] = None
     chunk_index: int
 

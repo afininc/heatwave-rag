@@ -122,11 +122,11 @@ class EmbeddingManager:
             with self.db_manager.get_session() as session:
                 for chunk, embedding in zip(batch, embeddings):
                     # Check if document already exists
-                    if skip_existing and chunk.metadata.source_id:
+                    if skip_existing and chunk.meta.get("source_id"):
                         existing = (
                             session.query(VectorDocument)
                             .filter_by(
-                                source_id=chunk.metadata.source_id,
+                                source_id=chunk.meta.get("source_id"),
                                 chunk_index=chunk.chunk_index,
                             )
                             .first()
@@ -134,7 +134,7 @@ class EmbeddingManager:
 
                         if existing:
                             logger.info(
-                                f"Skipping existing chunk: {chunk.metadata.source_id}:{chunk.chunk_index}"
+                                f"Skipping existing chunk: {chunk.meta.get('source_id')}:{chunk.chunk_index}"
                             )
                             continue
 
@@ -162,12 +162,11 @@ class EmbeddingManager:
         Returns:
             VectorDocument instance
         """
-        metadata = chunk.metadata
-        custom_metadata = metadata.custom_metadata or {}
+        metadata = chunk.meta
 
         # Prepare metadata JSON
         metadata_json = {
-            **custom_metadata,
+            **metadata,
             "chunk_metadata": {
                 "chunk_index": chunk.chunk_index,
                 "embedding_model": self.embedding_model_name,
@@ -177,16 +176,16 @@ class EmbeddingManager:
         return VectorDocument(
             vector=np.array(embedding),
             text=chunk.text,
-            metadata=metadata_json,
-            source=metadata.source,
-            source_id=metadata.source_id,
+            meta=metadata_json,
+            source=metadata.get("source"),
+            source_id=metadata.get("source_id"),
             chunk_index=chunk.chunk_index,
-            document_title=metadata.document_title,
-            author=metadata.author,
-            tags=metadata.tags,
-            lang=metadata.lang,
-            project=metadata.project,
-            namespace=metadata.namespace,
+            document_title=metadata.get("document_title"),
+            author=metadata.get("author"),
+            tags=metadata.get("tags"),
+            lang=metadata.get("lang", "en"),
+            project=metadata.get("project"),
+            namespace=metadata.get("namespace"),
             embedding_model=self.embedding_model_name,
         )
 

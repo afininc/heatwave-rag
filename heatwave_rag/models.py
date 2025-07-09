@@ -18,7 +18,7 @@ class VectorDocument(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     vector = Column(VECTOR, nullable=False)  # Vector column for embeddings
     text = Column(Text, nullable=False)  # Original text content
-    metadata = Column(JSON, nullable=True)  # Additional metadata as JSON
+    meta = Column("metadata", JSON, nullable=True)  # Additional metadata as JSON
     source = Column(String(500), nullable=True)  # Source file/URL
     source_id = Column(String(255), nullable=True)  # Unique identifier from source
     chunk_index = Column(

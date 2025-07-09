@@ -3,14 +3,6 @@
 import logging
 from typing import Any, Optional
 
-from langchain.document_loaders import (
-    CSVLoader,
-    JSONLoader,
-    PDFLoader,
-    TextLoader,
-    UnstructuredMarkdownLoader,
-    UnstructuredWordDocumentLoader,
-)
 from langchain.document_loaders.base import BaseLoader
 from langchain.schema import Document
 from langchain.text_splitter import (
@@ -20,9 +12,17 @@ from langchain.text_splitter import (
     RecursiveCharacterTextSplitter,
     TokenTextSplitter,
 )
-from langchain_community.document_loaders import DirectoryLoader
+from langchain_community.document_loaders import (
+    CSVLoader,
+    DirectoryLoader,
+    JSONLoader,
+    PyPDFLoader,
+    TextLoader,
+    UnstructuredMarkdownLoader,
+    UnstructuredWordDocumentLoader,
+)
 
-from heatwave_rag.schemas import DocumentChunk, DocumentMetadata
+from heatwave_rag.schemas import DocumentChunk
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ class DocumentProcessor:
     # Default file type to loader mapping
     DEFAULT_LOADERS = {
         ".txt": TextLoader,
-        ".pdf": PDFLoader,
+        ".pdf": PyPDFLoader,
         ".docx": UnstructuredWordDocumentLoader,
         ".doc": UnstructuredWordDocumentLoader,
         ".md": UnstructuredMarkdownLoader,
@@ -172,7 +172,7 @@ class DocumentProcessor:
     def process_file(
         self,
         file_path: str,
-        metadata: Optional[DocumentMetadata] = None,
+        metadata: Optional[dict[str, Any]] = None,
         loader: Optional[BaseLoader] = None,
         splitter: Optional[Any] = None,
         **loader_kwargs,
@@ -194,7 +194,7 @@ class DocumentProcessor:
 
         # Add metadata
         if metadata:
-            metadata_dict = metadata.model_dump(exclude_none=True)
+            metadata_dict = metadata
             for doc in documents:
                 doc.metadata.update(metadata_dict)
                 doc.metadata["source"] = file_path
@@ -205,11 +205,10 @@ class DocumentProcessor:
         # Convert to DocumentChunk objects
         result = []
         for idx, chunk in enumerate(chunks):
-            chunk_metadata = DocumentMetadata(**chunk.metadata)
             result.append(
                 DocumentChunk(
                     text=chunk.page_content,
-                    metadata=chunk_metadata,
+                    meta=chunk.metadata,
                     chunk_index=idx,
                 )
             )
@@ -219,8 +218,10 @@ class DocumentProcessor:
     def process_text(
         self,
         text: str,
-        metadata: Optional[DocumentMetadata] = None,
+        metadata: Optional[dict[str, Any]] = None,
         splitter: Optional[Any] = None,
+        chunk_size: Optional[int] = None,
+        chunk_overlap: Optional[int] = None,
     ) -> list[DocumentChunk]:
         """Process raw text: split into chunks.
 
@@ -233,20 +234,28 @@ class DocumentProcessor:
             List of document chunks
         """
         # Create document
-        doc_metadata = metadata.model_dump(exclude_none=True) if metadata else {}
+        doc_metadata = metadata if metadata else {}
         document = Document(page_content=text, metadata=doc_metadata)
 
         # Split into chunks
-        chunks = self.split_documents([document], splitter)
+        if not splitter and (chunk_size or chunk_overlap):
+            # Create a temporary splitter with custom parameters
+            temp_splitter = CharacterTextSplitter(
+                chunk_size=chunk_size or self.chunk_size,
+                chunk_overlap=chunk_overlap or self.chunk_overlap,
+                separator="\n\n",
+            )
+            chunks = self.split_documents([document], temp_splitter)
+        else:
+            chunks = self.split_documents([document], splitter)
 
         # Convert to DocumentChunk objects
         result = []
         for idx, chunk in enumerate(chunks):
-            chunk_metadata = DocumentMetadata(**chunk.metadata)
             result.append(
                 DocumentChunk(
                     text=chunk.page_content,
-                    metadata=chunk_metadata,
+                    meta=chunk.metadata,
                     chunk_index=idx,
                 )
             )

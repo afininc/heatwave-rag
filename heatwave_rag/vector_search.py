@@ -67,7 +67,7 @@ class VectorSearchEngine:
                 )
 
                 if query.include_metadata:
-                    result.metadata = self._build_metadata(doc)
+                    result.meta = self._build_metadata(doc)
 
                 search_results.append(result)
 
@@ -225,7 +225,7 @@ class VectorSearchEngine:
 
     def _build_metadata(self, doc: VectorDocument) -> dict[str, Any]:
         """Build metadata dictionary from document."""
-        metadata = doc.metadata or {}
+        metadata = doc.meta or {}
 
         # Add document fields to metadata
         metadata.update(
@@ -382,7 +382,7 @@ class VectorSearchEngine:
                 )
 
                 if query.include_metadata:
-                    result.metadata = self._build_metadata(doc)
+                    result.meta = self._build_metadata(doc)
 
                 results.append(result)
 
