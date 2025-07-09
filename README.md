@@ -4,13 +4,13 @@ A comprehensive RAG (Retrieval-Augmented Generation) library for Oracle HeatWave
 
 ## Features
 
-- =� **HeatWave Vector Store**: Optimized for Oracle HeatWave MySQL's vector capabilities
-- = **LangChain Integration**: Seamless integration with LangChain ecosystem
-- =� **Multi-Format Support**: Process PDF, DOCX, Markdown, JSON, CSV, and text files
-- = **Hybrid Search**: Combine vector similarity and keyword search
-- <� **Multi-Tenancy**: Built-in support for projects and namespaces
-- = **Flexible Embeddings**: Support for OpenAI, HuggingFace, Cohere, and more
-- <� **Production Ready**: Connection pooling, batch processing, and error handling
+- **HeatWave Vector Store**: Optimized for Oracle HeatWave MySQL's vector capabilities
+- **LangChain Integration**: Seamless integration with LangChain ecosystem
+- **Multi-Format Support**: Process PDF, DOCX, Markdown, JSON, CSV, and text files
+- **Hybrid Search**: Combine vector similarity and keyword search
+- **Multi-Tenancy**: Built-in support for projects and namespaces
+- **Flexible Embeddings**: Support for OpenAI, HuggingFace, Cohere, and more
+- **Production Ready**: Connection pooling, batch processing, and error handling
 
 ## Installation
 
@@ -78,6 +78,22 @@ print(response["sources"])
 
 ## Configuration
 
+### Vector Distance Metrics
+
+HeatWave RAG supports multiple distance metrics for vector similarity search:
+
+- **COSINE** (default): Measures the cosine of the angle between vectors. Best for normalized embeddings.
+- **DOT**: Dot product similarity. Suitable when vector magnitude matters.
+- **EUCLIDEAN**: Euclidean distance converted to similarity. Good for spatial similarity.
+
+```python
+# Use a different distance metric
+rag = heatwave_rag.HeatWaveRAG(
+    connection_config={...},
+    distance_metric="EUCLIDEAN"  # or "DOT", "COSINE"
+)
+```
+
 ### Environment Variables
 
 Create a `.env` file based on `.env.example`:
@@ -96,89 +112,93 @@ OPENAI_API_KEY=your_api_key
 # Optional: Other providers
 ANTHROPIC_API_KEY=your_api_key
 COHERE_API_KEY=your_api_key
+HUGGINGFACE_API_KEY=your_api_key
 ```
 
-### Connection Configuration
+## API Reference
+
+### HeatWaveRAG
+
+The main interface for all RAG operations.
 
 ```python
-from heatwave_rag import HeatWaveRAG, ConnectionConfig
+from heatwave_rag import HeatWaveRAG
 
-config = ConnectionConfig(
-    host="localhost",
-    port=3306,
-    user="root",
-    password="password",
-    database="mydb",
-    pool_size=5,
-    max_overflow=10
+rag = HeatWaveRAG(
+    connection_config={...},
+    embeddings=...,  # LangChain embeddings
+    llm=...,         # LangChain LLM
+    table_name="vector_documents",
+    vector_dimension=1536,
+    auto_init=True
 )
-
-rag = HeatWaveRAG(connection_config=config)
 ```
 
-## Advanced Usage
-
-### Custom Embeddings
+### Adding Documents
 
 ```python
-from langchain_community.embeddings import HuggingFaceEmbeddings
-
-embeddings = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L6-v2"
-)
-
-rag.set_embeddings(embeddings)
-```
-
-### Document Processing with Custom Chunking
-
-```python
-# Add documents with custom chunk settings
+# Add files
 doc_ids = rag.add_documents(
-    documents=["large_document.pdf"],
-    chunk_size=500,
-    chunk_overlap=50,
-    metadata={
-        "source": "technical_manual",
-        "version": "2.0",
-        "tags": ["manual", "technical"]
-    }
+    ["file1.pdf", "file2.txt"],
+    metadata={"author": "John Doe", "project": "research"}
+)
+
+# Add directory
+doc_ids = rag.add_directory(
+    "path/to/documents",
+    glob_pattern="*.pdf",
+    metadata={"project": "research"}
+)
+
+# Add text directly
+doc_ids = rag.add_documents(
+    ["Text content 1", "Text content 2"],
+    metadata={"source": "manual"}
 )
 ```
 
-### Hybrid Search
+### Searching
 
 ```python
-from heatwave_rag import VectorSearchQuery
+# Simple search
+results = rag.search("quantum computing", top_k=10)
 
-# Create custom search query
-query = VectorSearchQuery(
-    query_text="machine learning algorithms",
-    top_k=10,
-    filters={"tags": ["AI", "ML"]},
+# Advanced search with filters
+results = rag.search(
+    query="machine learning",
+    top_k=5,
     project="research",
     namespace="papers"
 )
 
-results = rag.search(query, similarity_threshold=0.7)
-```
-
-### Batch Processing
-
-```python
-# Process entire directory
-doc_ids = rag.add_directory(
-    directory_path="./documents",
-    glob_pattern="**/*.pdf",
-    recursive=True,
-    exclude=["**/drafts/*"],
-    batch_size=50
+# Hybrid search (vector + keyword)
+results = rag.vector_search_engine.hybrid_search(
+    VectorSearchQuery(
+        query_text="neural networks",
+        top_k=10,
+        project="research"
+    ),
+    keyword_weight=0.3,
+    vector_weight=0.7
 )
 ```
 
-### Custom RAG Prompts
+### RAG Queries
 
 ```python
+# Basic RAG query
+response = rag.query("What is deep learning?")
+
+# With custom parameters
+response = rag.query(
+    "Explain transformers",
+    top_k=5,
+    temperature=0.7,
+    return_sources=True,
+    project="ml_papers"
+)
+
+# Custom prompt template
 custom_prompt = """
 You are a technical assistant. Use the following context to answer the question.
 Be concise and specific.
@@ -291,7 +311,3 @@ Apache License 2.0 - see LICENSE file for details.
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-
-## Support
-
-For issues and feature requests, please use the [GitHub issue tracker](https://github.com/afininc/heatwave-rag/issues).
